@@ -102,38 +102,38 @@ export const serviceCategories = services.map(({ slug, name }) => ({ slug, name 
 
 export const projects = [
   {
-    title: "Website Development",
+    title: "Network Installation",
     client: "OLWAY Petroleum",
     description:
-      "A modern digital platform that improves visibility and support for a major business brand.",
+      "Network installation covering 80 plus nodes for a reliable and scalable enterprise connectivity solution.",
     image: "/images/projects/project1.png",
   },
   {
-    title: "Network Installation",
+    title: "Website Development",
     client: "PMC Ethiopia",
     description:
-      "Structured networking deployment designed for reliability, scalability, and long-term performance.",
+      "Modern website development tailored to strengthen digital presence and business communication.",
     image: "/images/projects/project2.jpg",
   },
   {
-    title: "Website Administration",
+    title: "Network Installation",
     client: "Addis Continental Institute",
     description:
-      "A user-friendly, maintained web presence tailored to institutional communication and information access.",
+      "Network installation of 560 nodes designed for a large-scale, high-performance institutional infrastructure.",
     image: "/images/projects/project3.jpg",
   },
   {
-    title: "Cloud Infrastructure Setup",
+    title: "Network Installation",
     client: "Enterprise Solutions Ltd",
     description:
-      "Scalable cloud-based infrastructure designed to enhance system reliability and operational efficiency.",
+      "Network installation of 50 nodes combined with web administration for dependable operational support.",
     image: "/images/projects/project4.jpg",
   },
   {
-    title: "Security Audit & Implementation",
+    title: "Website Development",
     client: "Financial Services Corp",
     description:
-      "Comprehensive security assessment and implementation of advanced protective measures for critical systems.",
+      "Website development focused on professional online presence, accessibility, and business growth support.",
     image: "/images/projects/project5.jpg",
   },
 ];
