@@ -4,8 +4,6 @@ import ServiceCategories from "../../components/ServiceCategories";
 import { services } from "../../data/siteData";
 
 export default function ServiceDetailPage({ params }: { params: Promise<{ slug: string }> }) {
-  const resolvedParams = params ? undefined : undefined;
-
   return <ServiceDetailContent params={params} />;
 }
 
