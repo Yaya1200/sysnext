@@ -1,22 +1,49 @@
 import Image from "next/image";
 import Link from "next/link";
 import ServiceCategories from "../../components/ServiceCategories";
-import { services } from "../../data/siteData";
+import { services as defaultServices, ServiceItem } from "../../data/siteData";
+import { createClient } from "../../../lib/supabase/server";
 
-export default function ServiceDetailPage({ params }: { params: Promise<{ slug: string }> }) {
-  return <ServiceDetailContent params={params} />;
-}
-
-async function ServiceDetailContent({ params }: { params: Promise<{ slug: string }> }) {
+export default async function ServiceDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const service = services.find((item) => item.slug === slug);
+
+  let service: ServiceItem | null = null;
+
+  try {
+    const supabase = await createClient();
+    const { data } = await supabase
+      .from("content_items")
+      .select("*")
+      .eq("content_type", "service")
+      .or(`slug.eq.${slug},id.eq.${Number(slug) || 0}`)
+      .maybeSingle();
+
+    if (data) {
+      service = {
+        id: data.id,
+        slug: data.slug || String(data.id),
+        name: data.title,
+        title: data.title,
+        shortDescription: data.description || "",
+        description: data.content || data.description || "",
+        features: Array.isArray(data.extra_data?.features) ? data.extra_data.features : [],
+        image: data.image || "/images/services/service1.jpg",
+      };
+    }
+  } catch {
+    // ignore
+  }
+
+  if (!service) {
+    service = defaultServices.find((item) => item.slug === slug || String(item.id) === slug) || null;
+  }
 
   if (!service) {
     return (
       <div className="container mx-auto px-4 py-20 text-center">
         <h1 className="mb-4 text-4xl font-bold text-slate-900">Service not found</h1>
-        <p className="mb-8 text-slate-600">The page you are looking for does not exist or has been moved.</p>
-        <Link href="/services" className="primary-btn">
+        <p className="mb-8 text-slate-600">The service you are looking for does not exist or has been moved.</p>
+        <Link href="/services" className="rounded-xl bg-blue-600 px-6 py-3 font-bold text-white shadow-lg hover:bg-blue-700">
           Back to Services
         </Link>
       </div>
@@ -28,7 +55,7 @@ async function ServiceDetailContent({ params }: { params: Promise<{ slug: string
       <section className="bg-slate-100 py-12">
         <div className="container mx-auto px-4">
           <div className="text-sm text-slate-500">
-            Home - Services - <span className="font-semibold text-slate-700">{service.name}</span>
+            <Link href="/" className="hover:underline">Home</Link> - <Link href="/services" className="hover:underline">Services</Link> - <span className="font-semibold text-slate-700">{service.name}</span>
           </div>
         </div>
       </section>
@@ -48,18 +75,40 @@ async function ServiceDetailContent({ params }: { params: Promise<{ slug: string
                     <h1 className="text-4xl font-bold text-slate-900">{service.title}</h1>
                   </div>
                   <div className="relative h-52 overflow-hidden rounded-2xl bg-white">
-                    <Image src={service.image} alt={service.title} fill className="object-cover" />
+                    <img src={service.image} alt={service.title} className="h-full w-full object-cover" />
                   </div>
                 </div>
               </div>
 
               <div className="space-y-6 text-base leading-8 text-slate-700">
-                <p>{service.description}</p>
-                <ul className="list-disc space-y-2 pl-6">
-                  {service.features.map((feature) => (
-                    <li key={feature}>{feature}</li>
-                  ))}
-                </ul>
+                <p className="text-lg leading-relaxed text-slate-800 font-medium">
+                  {service.shortDescription}
+                </p>
+                <div className="whitespace-pre-wrap">
+                  {service.description}
+                </div>
+
+                {service.features && service.features.length > 0 && (
+                  <div className="mt-8 rounded-2xl bg-slate-50 p-6 border border-slate-200">
+                    <h3 className="text-lg font-bold text-slate-900 mb-4">Key Capabilities & Features:</h3>
+                    <ul className="grid gap-3 sm:grid-cols-2">
+                      {service.features.map((feature, idx) => (
+                        <li key={idx} className="flex items-center gap-2 text-sm text-slate-700">
+                          <span className="text-blue-600 font-bold">✓</span> {feature}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                <div className="pt-6">
+                  <Link
+                    href="/contact"
+                    className="inline-flex rounded-xl bg-blue-600 px-6 py-3 font-bold text-white shadow-lg shadow-blue-500/20 hover:bg-blue-700"
+                  >
+                    Request a Service Quote →
+                  </Link>
+                </div>
               </div>
             </main>
           </div>
