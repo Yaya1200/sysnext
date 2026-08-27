@@ -1,8 +1,35 @@
 import Link from "next/link";
 import ServiceCategories from "../components/ServiceCategories";
-import { services } from "../data/siteData";
+import { services as defaultServices, ServiceItem } from "../data/siteData";
+import { createClient } from "../../lib/supabase/server";
 
-export default function ServicesPage() {
+export default async function ServicesPage() {
+  let serviceList: ServiceItem[] = defaultServices;
+
+  try {
+    const supabase = await createClient();
+    const { data } = await supabase
+      .from("content_items")
+      .select("*")
+      .eq("content_type", "service")
+      .order("id", { ascending: false });
+
+    if (data && data.length > 0) {
+      serviceList = data.map((item) => ({
+        id: item.id,
+        slug: item.slug || String(item.id),
+        name: item.title,
+        title: item.title,
+        shortDescription: item.description || "",
+        description: item.content || item.description || "",
+        features: item.extra_data?.features || [],
+        image: item.image || "/images/services/service1.jpg",
+      }));
+    }
+  } catch {
+    // ignore
+  }
+
   return (
     <div className="bg-white">
       <section className="bg-slate-100 py-12">
@@ -21,25 +48,32 @@ export default function ServicesPage() {
             </aside>
 
             <main className="w-full md:w-3/4">
-              <h1 className="mb-6 text-4xl font-bold text-slate-900">Centre for Technology Solutions (CTS)</h1>
+              <h1 className="mb-6 text-4xl font-bold text-slate-900">
+                Centre for Technology Solutions (CTS)
+              </h1>
               <div className="space-y-5 text-base leading-8 text-slate-700">
                 <p>
                   Welcome to the Centre for Technology Solutions (CTS), SysNet’s technology solution delivery arm. We are dedicated to providing a wide range of services to meet your business needs.
                 </p>
                 <p>
-                  Our team of experts is here to help you with everything from computing and networking to sales and consultancy. Please select a category from the sidebar to learn more about our services.
+                  Our team of experts is here to help you with everything from computing and networking to sales and consultancy. Please select a category from the sidebar or browse our full services below.
                 </p>
               </div>
 
               <div className="mt-12 grid gap-6 md:grid-cols-2">
-                {services.map((service) => (
+                {serviceList.map((service) => (
                   <Link
-                    key={service.slug}
+                    key={service.id || service.slug}
                     href={`/services/${service.slug}`}
-                    className="rounded-2xl border border-slate-200 bg-slate-50 p-6 transition hover:-translate-y-1 hover:shadow-md"
+                    className="group rounded-2xl border border-slate-200 bg-slate-50 p-6 transition hover:-translate-y-1 hover:border-blue-300 hover:shadow-lg"
                   >
-                    <h2 className="mb-2 text-2xl font-bold text-slate-900">{service.name}</h2>
-                    <p className="text-slate-600">{service.shortDescription}</p>
+                    <h2 className="mb-2 text-2xl font-bold text-slate-900 group-hover:text-blue-600 transition">
+                      {service.name}
+                    </h2>
+                    <p className="text-slate-600 text-sm leading-relaxed">{service.shortDescription}</p>
+                    <span className="mt-4 inline-flex items-center text-xs font-bold text-blue-600">
+                      Learn More →
+                    </span>
                   </Link>
                 ))}
               </div>
