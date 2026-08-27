@@ -1,17 +1,28 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { products } from "../data/siteData";
-
-const categories = ["All", ...new Set(products.map((product) => product.category))];
+import Link from "next/link";
+import { CartSummaryLink, useCart } from "../components/CartProvider";
 
 export default function ShopPage() {
+  const [catalog, setCatalog] = useState(products);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const { addToCart } = useCart();
+
+  useEffect(() => {
+    fetch("/api/products")
+      .then((response) => (response.ok ? response.json() : Promise.reject(new Error("Product request failed"))))
+      .then(setCatalog)
+      .catch(() => undefined);
+  }, []);
+
+  const categories = ["All", ...new Set(catalog.map((product) => product.category))];
 
   const filteredProducts = useMemo(() => {
-    return products.filter((product) => {
+    return catalog.filter((product) => {
       const matchesCategory = selectedCategory === "All" || product.category === selectedCategory;
       const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
       return matchesCategory && matchesSearch;
@@ -28,6 +39,7 @@ export default function ShopPage() {
               <h1 className="text-4xl font-black tracking-tight md:text-5xl">Technology products for modern businesses</h1>
               <p className="mt-4 text-base text-slate-300">Browse our curated selection of premium IT hardware and networking solutions designed for businesses and institutions.</p>
             </div>
+            <CartSummaryLink />
           </div>
         </div>
 
@@ -73,13 +85,21 @@ export default function ShopPage() {
             {filteredProducts.map((product) => (
               <article key={product.id} className="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl">
                 <div className="relative h-64 overflow-hidden bg-slate-100">
-                  <Image src={product.image} alt={product.name} fill className="object-cover transition duration-300 group-hover:scale-105" />
+                  <Link href={`/shop/${product.id}`} aria-label={`View ${product.name}`}>
+                    <Image src={product.image} alt={product.name} fill className="object-cover transition duration-300 group-hover:scale-105" />
+                  </Link>
                 </div>
                 <div className="p-5">
                   <div className="mb-2 inline-flex rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-blue-700">
                     {product.category}
                   </div>
                   <h3 className="text-xl font-bold text-slate-900">{product.name}</h3>
+                  <div className="mt-4 flex items-center justify-between gap-3">
+                    <span className="font-bold text-blue-700">${product.price.toFixed(2)}</span>
+                    <button type="button" onClick={() => addToCart(product)} className="rounded-lg bg-slate-900 px-3 py-2 text-sm font-semibold text-white transition hover:bg-blue-700">
+                      Add to cart
+                    </button>
+                  </div>
                 </div>
               </article>
             ))}

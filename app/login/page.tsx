@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
+import { createClient } from "../../lib/supabase/client";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -10,32 +11,26 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
-    const savedUser = localStorage.getItem("sysnet-user");
 
     if (!email || !password) {
       setMessage("Please enter your email and password.");
       return;
     }
 
-    if (!savedUser) {
-      setMessage("No account found. Please register first.");
+    const supabase = createClient();
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+    if (error) {
+      setMessage(error.message);
       return;
     }
 
-    const parsedUser = JSON.parse(savedUser);
-
-    if (parsedUser.email !== email || parsedUser.password !== password) {
-      setMessage("Invalid email or password. Please try again.");
-      return;
-    }
-
-    localStorage.setItem("sysnet-session", JSON.stringify({ email, isLoggedIn: true }));
+    const { data: profile } = await supabase.from("profiles").select("role").eq("id", data.user.id).maybeSingle();
     setMessage("Login successful. Redirecting...");
 
-    setTimeout(() => router.push("/"), 600);
+    setTimeout(() => router.push(profile?.role === "admin" ? "/admin" : "/shop"), 600);
   };
 
   return (

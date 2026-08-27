@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
+import { createClient } from "../../lib/supabase/client";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -10,10 +11,14 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [role, setRole] = useState<"user" | "admin">("user");
+  const [adminCode, setAdminCode] = useState("");
   const [message, setMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setMessage("");
 
     if (!fullName || !email || !password || !confirmPassword) {
       setMessage("Please fill in all fields.");
@@ -30,17 +35,30 @@ export default function RegisterPage() {
       return;
     }
 
-    const user = {
-      fullName,
-      email,
-      password,
-    };
+    setIsSubmitting(true);
+    try {
+      let error: { message: string } | null = null;
+      if (role === "admin") {
+        const response = await fetch("/api/auth/register", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ fullName, email, password, role, adminCode }) });
+        if (!response.ok) error = await response.json();
+      } else {
+        const result = await createClient().auth.signUp({ email, password, options: { data: { full_name: fullName } } });
+        error = result.error;
+      }
 
-    localStorage.setItem("sysnet-user", JSON.stringify(user));
-    localStorage.setItem("sysnet-session", JSON.stringify({ email, isLoggedIn: true }));
-    setMessage("Account created successfully. Redirecting...");
+      if (error) {
+        setMessage(error.message);
+        return;
+      }
 
-    setTimeout(() => router.push("/"), 600);
+      setMessage(role === "admin" ? "Administrator account created. Check your email to confirm it." : "Account created successfully. Check your email to confirm your account.");
+
+      setTimeout(() => router.push("/login"), 600);
+    } catch {
+      setMessage("Signup could not reach the server. Check that the development server is running and try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -64,6 +82,21 @@ export default function RegisterPage() {
               className="w-full rounded-md border border-slate-300 px-3 py-2.5 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
             />
           </div>
+
+          <div>
+            <label htmlFor="role" className="mb-2 block text-sm font-medium text-slate-700">Account type</label>
+            <select id="role" value={role} onChange={(event) => setRole(event.target.value as "user" | "admin")} className="w-full rounded-md border border-slate-300 px-3 py-2.5">
+              <option value="user">User</option>
+              <option value="admin">Administrator</option>
+            </select>
+          </div>
+
+          {role === "admin" ? (
+            <div>
+              <label htmlFor="admin-code" className="mb-2 block text-sm font-medium text-slate-700">Administrator registration code</label>
+              <input id="admin-code" type="password" required value={adminCode} onChange={(event) => setAdminCode(event.target.value)} className="w-full rounded-md border border-slate-300 px-3 py-2.5" />
+            </div>
+          ) : null}
 
           <div>
             <label htmlFor="email" className="mb-2 block text-sm font-medium text-slate-700">
@@ -119,9 +152,10 @@ export default function RegisterPage() {
 
           <button
             type="submit"
+            disabled={isSubmitting}
             className="w-full rounded-md bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
           >
-            Sign up
+            {isSubmitting ? "Creating account..." : "Sign up"}
           </button>
         </form>
 

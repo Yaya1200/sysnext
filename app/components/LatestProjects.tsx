@@ -12,7 +12,7 @@ export default function LatestProjects() {
 
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
           {projects.map((project) => (
-            <div key={project.title} className="soft-card overflow-hidden transition duration-200 hover:-translate-y-1 hover:shadow-xl">
+            <div key={`${project.title}-${project.client}`} className="soft-card overflow-hidden transition duration-200 hover:-translate-y-1 hover:shadow-xl">
               <div
                 className="h-48 bg-cover bg-center"
                 style={{ backgroundImage: `linear-gradient(180deg, rgba(15,23,42,0.1), rgba(15,23,42,0.35)), url('${project.image}')` }}
