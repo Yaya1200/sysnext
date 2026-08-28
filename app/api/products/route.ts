@@ -3,7 +3,10 @@ import { createClient } from "../../../lib/supabase/server";
 import { createAdminClient } from "../../../lib/supabase/admin";
 import { products as defaultProducts } from "../../data/siteData";
 
-export async function GET() {
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const useFallback = searchParams.get("fallback") !== "false";
+
   try {
     const supabase = await createClient();
     const { data, error } = await supabase
@@ -12,12 +15,18 @@ export async function GET() {
       .order("id", { ascending: true });
 
     if (error || !data || data.length === 0) {
-      return NextResponse.json(defaultProducts);
+      if (!useFallback && error) {
+        return NextResponse.json({ error: error.message }, { status: 500 });
+      }
+      return NextResponse.json(useFallback ? defaultProducts : []);
     }
 
     return NextResponse.json(data);
   } catch (err) {
     console.error("Products GET error:", err);
+    if (!useFallback) {
+      return NextResponse.json({ error: "Failed to load products." }, { status: 500 });
+    }
     return NextResponse.json(defaultProducts);
   }
 }

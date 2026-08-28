@@ -13,6 +13,7 @@ import {
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const type = searchParams.get("type");
+  const useFallback = searchParams.get("fallback") !== "false";
 
   try {
     const supabase = await createClient();
@@ -25,18 +26,24 @@ export async function GET(request: Request) {
     const { data, error } = await query;
 
     if (error) {
+      if (!useFallback) {
+        return NextResponse.json({ error: error.message }, { status: 500 });
+      }
       console.warn("Supabase content query warning, returning fallback defaults:", error.message);
       return NextResponse.json(getDefaultFallback(type));
     }
 
     // If database returned items, return them. If database has no items for this type, merge with fallback
     if (!data || data.length === 0) {
-      return NextResponse.json(getDefaultFallback(type));
+      return NextResponse.json(useFallback ? getDefaultFallback(type) : []);
     }
 
     return NextResponse.json(data);
   } catch (err) {
     console.error("Content API GET error:", err);
+    if (!useFallback) {
+      return NextResponse.json({ error: "Failed to load content." }, { status: 500 });
+    }
     return NextResponse.json(getDefaultFallback(type));
   }
 }

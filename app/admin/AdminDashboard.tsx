@@ -534,7 +534,7 @@ function ServicesManager({
   const load = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/content?type=service");
+      const res = await fetch("/api/content?type=service&fallback=false");
       const data = await res.json();
       setItems(Array.isArray(data) ? data : []);
     } catch {
@@ -832,7 +832,7 @@ function ProductManager({
   const load = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/products");
+      const res = await fetch("/api/products?fallback=false");
       const data = await res.json();
       setProducts(Array.isArray(data) ? data : []);
     } catch {
@@ -1118,7 +1118,7 @@ function PartnersManager({
   const load = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/content?type=partner");
+      const res = await fetch("/api/content?type=partner&fallback=false");
       const data = await res.json();
       setPartners(Array.isArray(data) ? data : []);
     } catch {
@@ -1310,7 +1310,7 @@ function BlogsManager({
   const load = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/content?type=blog");
+      const res = await fetch("/api/content?type=blog&fallback=false");
       const data = await res.json();
       setBlogs(Array.isArray(data) ? data : []);
     } catch {
@@ -1624,7 +1624,7 @@ function SliderManager({
   const load = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/content?type=slider");
+      const res = await fetch("/api/content?type=slider&fallback=false");
       const data = await res.json();
       setSlides(Array.isArray(data) ? data : []);
     } catch {
@@ -1846,7 +1846,7 @@ function ProjectsManager({
   const load = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/content?type=project");
+      const res = await fetch("/api/content?type=project&fallback=false");
       const data = await res.json();
       setProjects(Array.isArray(data) ? data : []);
     } catch {
@@ -2070,7 +2070,7 @@ function TeamManager({
   const load = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/content?type=team");
+      const res = await fetch("/api/content?type=team&fallback=false");
       const data = await res.json();
       setMembers(Array.isArray(data) ? data : []);
     } catch {
