@@ -237,7 +237,7 @@ export const projects: ProjectItem[] = [
 export const teamMembers: TeamMemberItem[] = [
   {
     id: 1,
-    name: "Abel Samuel",
+    name: "Bereket Kahsay",
     role: "General Manager",
     image: "/images/team/team1.png",
     bio: "Executive technology leader with over a decade of IT infrastructure management experience.",
