@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "../../../lib/supabase/server";
+import { createAdminClient } from "../../../lib/supabase/admin";
 
 export async function GET(request: Request) {
   try {
@@ -36,15 +37,21 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Valid email and at least one cart item are required." }, { status: 400 });
     }
 
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    // Try to get the authenticated user for user_id linkage
+    let userId: string | null = null;
+    try {
+      const supabase = await createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      userId = user?.id || null;
+    } catch { /* ignore */ }
 
+    const supabase = createAdminClient();
     const { data, error } = await supabase
       .from("orders")
       .insert({
-        user_id: user?.id || null,
+        user_id: userId,
         user_email,
-        user_name: user_name || user?.user_metadata?.full_name || "Valued Customer",
+        user_name: user_name || "Valued Customer",
         user_phone: user_phone || null,
         items,
         total_amount: Number(total_amount) || 0,
@@ -82,7 +89,7 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: "Order ID and status are required." }, { status: 400 });
     }
 
-    const supabase = await createClient();
+    const supabase = createAdminClient();
     const { data, error } = await supabase
       .from("orders")
       .update({ status, notes })

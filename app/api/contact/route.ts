@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "../../../lib/supabase/server";
+import { createAdminClient } from "../../../lib/supabase/admin";
 import { verifyCaptcha } from "../captcha/route";
 
 export async function GET(request: Request) {
@@ -48,7 +49,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Incorrect CAPTCHA answer. Please try again." }, { status: 400 });
     }
 
-    const supabase = await createClient();
+    // Use admin client so anyone can submit contact messages (bypasses RLS insert restriction)
+    const supabase = createAdminClient();
     const { data, error } = await supabase
       .from("contact_messages")
       .insert({ name, email, phone, subject, message, status: "new" })
@@ -83,7 +85,7 @@ export async function PUT(request: Request) {
       if (!status) updatePayload.status = "in_progress";
     }
 
-    const supabase = await createClient();
+    const supabase = createAdminClient();
     const { data, error } = await supabase
       .from("contact_messages")
       .update(updatePayload)
@@ -110,7 +112,7 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: "Message ID is required." }, { status: 400 });
     }
 
-    const supabase = await createClient();
+    const supabase = createAdminClient();
     const { error } = await supabase.from("contact_messages").delete().eq("id", id);
 
     if (error) {
