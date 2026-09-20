@@ -71,7 +71,7 @@ export const heroSlides: HeroSlide[] = [
     title: "Doing with Excellence.",
     subtitle:
       "To define quality, cultivate unrivaled customer loyalty, and provide comprehensive solutions to customers' demands.",
-    image: "/images/hero/hero1.webp",
+    image: "/images/hero/hero1.jpg",
     link: "/contact",
     buttonText: "Contact Us",
   },
@@ -80,7 +80,7 @@ export const heroSlides: HeroSlide[] = [
     title: "Technology Built for Growth.",
     subtitle:
       "Secure networks, smarter systems, and reliable support that keep organizations moving forward.",
-    image: "/images/hero/hero2.webp",
+    image: "/images/hero/hero2.jpg",
     link: "/services",
     buttonText: "Explore Services",
   },
@@ -89,7 +89,7 @@ export const heroSlides: HeroSlide[] = [
     title: "Your Trusted IT Partner.",
     subtitle:
       "From design to deployment, we help businesses and institutions build resilient digital infrastructure.",
-    image: "/images/hero/hero3.webp",
+    image: "/images/hero/hero3.jpg",
     link: "/about",
     buttonText: "About SysNet",
   },
