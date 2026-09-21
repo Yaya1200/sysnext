@@ -13,6 +13,8 @@ const navItems = [
   { name: "Blog", href: "/blog" },
   { name: "Shop", href: "/shop" },
   { name: "Contact", href: "/contact" },
+  { name: "Gallery", href: "/gallery" },
+  
 ];
 
 export default function Header() {
@@ -83,7 +85,7 @@ export default function Header() {
           <div className="flex items-center gap-3">
             <span>🕒 8:30 AM - 5:30 PM</span>
             <span className="text-slate-600">|</span>
-            <span>📞 +251 (0) 911 04 67 05</span>
+            <span>📞 +251911249171</span>
           </div>
 
           <div className="flex items-center gap-3">
