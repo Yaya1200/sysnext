@@ -4,6 +4,9 @@ import { FormEvent, useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { createClient } from "../../lib/supabase/client";
+import StatsManager from "./StatsManager";
+import GalleryManager from "./GalleryManager";
+import SocialMediaManager from "./SocialMediaManager";
 
 type ContentType = "service" | "partner" | "blog" | "slider" | "project" | "team";
 
@@ -58,13 +61,16 @@ export interface OrderRecord {
 
 type TabType =
   | "overview"
+  | "stats"
   | "services"
+  | "gallery"
   | "products"
   | "partners"
   | "blogs"
   | "slider"
   | "projects"
   | "team"
+  | "social"
   | "messages"
   | "orders";
 
@@ -216,10 +222,36 @@ export default function AdminDashboard({ name }: { name: string }) {
                 <span>📊</span> Overview
               </span>
             </button>
+            <button
+                type="button"
+                onClick={() => setActiveTab("stats")}
+                className={`flex w-full items-center justify-between rounded-xl px-3.5 py-2.5 text-sm font-medium transition ${
+                  activeTab === "stats"
+                    ? "bg-blue-600 text-white shadow-md shadow-blue-600/30"
+                    : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                }`}
+              >
+                <span className="flex items-center gap-2.5">
+                  <span>📈</span> Site Statistics
+                </span>
+              </button>
 
             <div className="my-2 border-t border-slate-800 pt-2 px-3 text-[11px] font-bold uppercase tracking-wider text-slate-400">
               Content Managers
             </div>
+            <button
+                    type="button"
+                    onClick={() => setActiveTab("social")}
+                    className={`flex w-full items-center justify-between rounded-xl px-3.5 py-2.5 text-sm font-medium transition ${
+                      activeTab === "social"
+                        ? "bg-blue-600 text-white shadow-md"
+                        : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                    }`}
+                  >
+                    <span className="flex items-center gap-2.5">
+                      <span>🔗</span> Social Media
+                    </span>
+                  </button>
 
             <button
               type="button"
@@ -304,7 +336,24 @@ export default function AdminDashboard({ name }: { name: string }) {
               <span className="rounded-md bg-slate-800 px-2 py-0.5 text-xs text-slate-300">
                 {counts.slider}
               </span>
-            </button>
+                            </button>
+                            <button
+                  type="button"
+                  onClick={() => setActiveTab("gallery")}
+                  className={`flex w-full items-center justify-between rounded-xl px-3.5 py-2.5 text-sm font-medium transition ${
+                    activeTab === "gallery"
+                      ? "bg-blue-600 text-white shadow-md"
+                      : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                  }`}
+                >
+                  <span className="flex items-center gap-2.5">
+                    <span>🖼️</span> Image Gallery
+                  </span>
+
+                  <span className="rounded-md bg-slate-800 px-2 py-0.5 text-xs text-slate-300">
+                    Gallery
+                  </span>
+                </button>
 
             <button
               type="button"
@@ -390,6 +439,9 @@ export default function AdminDashboard({ name }: { name: string }) {
             {activeTab === "overview" && (
               <OverviewTab counts={counts} setActiveTab={setActiveTab} />
             )}
+            {activeTab === "stats" && (
+                    <StatsManager showNotification={showNotification} />
+                  )}
             {activeTab === "services" && (
               <ServicesManager showNotification={showNotification} onRefresh={refreshStats} />
             )}
@@ -404,7 +456,14 @@ export default function AdminDashboard({ name }: { name: string }) {
             )}
             {activeTab === "slider" && (
               <SliderManager showNotification={showNotification} onRefresh={refreshStats} />
+
             )}
+            {activeTab === "social" && <SocialMediaManager />}
+            {activeTab === "gallery" && (
+                            <GalleryManager
+                              showNotification={showNotification}
+                            />
+                          )}
             {activeTab === "projects" && (
               <ProjectsManager showNotification={showNotification} onRefresh={refreshStats} />
             )}
@@ -2382,7 +2441,7 @@ function MessagesManager({
             </button>
           ))}
         </div>
-      </div>
+      </div>  
 
       {/* Security & CAPTCHA badge */}
       <div className="mt-4 flex items-center gap-3 rounded-xl border border-slate-800 bg-slate-950/70 p-3.5 text-xs text-slate-300">
