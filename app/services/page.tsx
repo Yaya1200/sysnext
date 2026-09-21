@@ -1,13 +1,16 @@
 import Link from "next/link";
 import ServiceCategories from "../components/ServiceCategories";
-import { services as defaultServices, ServiceItem } from "../data/siteData";
-import { createClient } from "../../lib/supabase/server";
+import {
+  services as defaultServices,
+  ServiceItem,
+} from "../data/siteData";
+import { createAdminClient } from "../../lib/supabase/admin";
 
 export default async function ServicesPage() {
   let serviceList: ServiceItem[] = defaultServices;
 
   try {
-    const supabase = await createClient();
+    const supabase = createAdminClient();
 
     const { data, error } = await supabase
       .from("content_items")
@@ -15,7 +18,9 @@ export default async function ServicesPage() {
       .eq("content_type", "service")
       .order("id", { ascending: false });
 
-    if (!error && data && data.length > 0) {
+    if (error) {
+      console.error("Failed to load services:", error.message);
+    } else if (data && data.length > 0) {
       serviceList = data.map((item) => ({
         id: item.id,
         slug: item.slug || String(item.id),
@@ -23,7 +28,9 @@ export default async function ServicesPage() {
         title: item.title,
         shortDescription: item.description || "",
         description: item.content || item.description || "",
-        features: item.extra_data?.features || [],
+        features: Array.isArray(item.extra_data?.features)
+          ? item.extra_data.features
+          : [],
         image: item.image || "/images/services/service1.jpg",
       }));
     }

@@ -1,7 +1,5 @@
-export const dynamic = "force-dynamic";
-
 import Link from "next/link";
-import { createClient } from "../../lib/supabase/server";
+import { createAdminClient } from "../../lib/supabase/admin";
 
 const quickLinks = [
   { name: "Home", href: "/" },
@@ -43,7 +41,7 @@ export default async function Footer() {
   let socialLinks: SocialLink[] = [];
 
   try {
-    const supabase = await createClient();
+    const supabase = createAdminClient();
 
     const { data, error } = await supabase
       .from("social_links")
@@ -63,7 +61,6 @@ export default async function Footer() {
   return (
     <footer className="border-t border-slate-800 bg-slate-950 pt-16 text-white">
       <div className="container mx-auto grid gap-10 px-4 md:grid-cols-2 lg:grid-cols-4">
-
         {/* Company */}
         <div>
           <div className="mb-4 flex items-center gap-3">
