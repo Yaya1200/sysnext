@@ -7,8 +7,12 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const email = searchParams.get("email");
 
-    const supabase = await createClient();
-    let query = supabase.from("orders").select("*").order("created_at", { ascending: false });
+    const supabase = createAdminClient();
+
+    let query = supabase
+      .from("orders")
+      .select("*")
+      .order("created_at", { ascending: false });
 
     if (email) {
       query = query.eq("user_email", email);
@@ -17,14 +21,22 @@ export async function GET(request: Request) {
     const { data, error } = await query;
 
     if (error) {
-      console.warn("Orders GET warning:", error.message);
-      return NextResponse.json([]);
+      console.error("Orders GET error:", error.message);
+
+      return NextResponse.json(
+        { error: error.message },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json(data || []);
   } catch (err) {
     console.error("Orders GET error:", err);
-    return NextResponse.json([]);
+
+    return NextResponse.json(
+      { error: "Failed to fetch orders." },
+      { status: 500 }
+    );
   }
 }
 
