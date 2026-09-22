@@ -255,28 +255,7 @@ export default function LoginPage() {
           </button>
         </form>
 
-        {/* Quick Demo Login Helper */}
-        <div className="mt-6 border-t border-slate-800/80 pt-4">
-          <p className="text-center text-[11px] font-bold uppercase tracking-wider text-slate-500">
-            Instant 1-Click Access
-          </p>
-          <div className="mt-3 grid grid-cols-2 gap-2">
-            <button
-              type="button"
-              onClick={() => handleQuickDemo("admin")}
-              className="rounded-xl border border-blue-500/30 bg-blue-600/10 px-3 py-2 text-xs font-bold text-blue-400 hover:bg-blue-600/20"
-            >
-              👑 Login as Admin
-            </button>
-            <button
-              type="button"
-              onClick={() => handleQuickDemo("user")}
-              className="rounded-xl border border-emerald-500/30 bg-emerald-600/10 px-3 py-2 text-xs font-bold text-emerald-400 hover:bg-emerald-600/20"
-            >
-              👤 Login as User
-            </button>
-          </div>
-        </div>
+
 
         <p className="mt-6 text-center text-xs text-slate-400">
           Not registered yet?{" "}
