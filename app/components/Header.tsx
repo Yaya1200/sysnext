@@ -144,7 +144,7 @@ export default function Header() {
     aria-label="SysNet home page"
   >
     <Image
-      src="/images/logo/sysnet-logo.jpg"
+      src="/images/logo/sysnet-logo.png"
       alt="SysNet Technologies"
       width={160}
       height={72}
