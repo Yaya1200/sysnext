@@ -99,7 +99,7 @@ export default function ProductDetailPage() {
 
             <div className="mt-4 flex items-center gap-3">
               <span className="text-3xl font-black text-blue-700">
-                ${Number(product.price).toFixed(2)}
+                {Number(product.price).toFixed(2)} ETB
               </span>
               <span className="rounded-md bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700 border border-emerald-200">
                 In Stock & Verified
