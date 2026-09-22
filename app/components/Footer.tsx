@@ -10,8 +10,6 @@ const quickLinks = [
   { name: "Contact Us", href: "/contact" },
 ];
 
-
-
 interface SocialLink {
   id: number;
   platform: string;
@@ -40,12 +38,17 @@ export default async function Footer() {
 
     const { data, error } = await supabase
       .from("social_links")
-      .select("*")
+      .select(
+        "id, platform, url, icon, is_active, display_order"
+      )
       .eq("is_active", true)
       .order("display_order", { ascending: true });
 
     if (error) {
-      console.error("Footer social links error:", error.message);
+      console.error(
+        "Footer social links error:",
+        error.message
+      );
     } else {
       socialLinks = data ?? [];
     }
@@ -69,7 +72,7 @@ export default async function Footer() {
           </div>
 
           <p className="text-sm leading-7 text-slate-400">
-            SysNet Technologies PLC is one of Ethiopia’s premier
+            SysNet Technologies PLC is one of Ethiopia&apos;s premier
             technology service providers, delivering enterprise network
             engineering, cloud computing, and IT hardware solutions.
           </p>
@@ -95,7 +98,6 @@ export default async function Footer() {
           </ul>
         </div>
 
-       
         {/* Headquarters */}
         <div>
           <h3 className="mb-4 text-base font-bold text-white">
@@ -104,13 +106,27 @@ export default async function Footer() {
 
           <ul className="space-y-2.5 text-sm leading-6 text-slate-400">
             <li>
-              5 kilo, Mekane Yesus Building, 1st floor,
+              5 Kilo, Mekane Yesus Building, 1st Floor,
               Addis Ababa, Ethiopia
             </li>
 
-            <li>+251911249171</li>
+            <li>
+              <a
+                href="tel:+251911249171"
+                className="transition hover:text-blue-400"
+              >
+                +251 911 249 171
+              </a>
+            </li>
 
-            <li>info@sysnet-et.com</li>
+            <li>
+              <a
+                href="mailto:info@sysnet-et.com"
+                className="transition hover:text-blue-400"
+              >
+                info@sysnet-et.com
+              </a>
+            </li>
           </ul>
 
           {/* Dynamic Social Media */}
@@ -118,8 +134,9 @@ export default async function Footer() {
             <div className="mt-5 flex flex-wrap items-center gap-3">
               {socialLinks.map((social) => {
                 const icon =
-                  iconMap[social.icon?.trim().toLowerCase() || ""] ||
-                  "fas fa-link";
+                  iconMap[
+                    social.icon?.trim().toLowerCase() || ""
+                  ] || "fas fa-link";
 
                 return (
                   <a
@@ -131,7 +148,10 @@ export default async function Footer() {
                     title={social.platform}
                     className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-800 bg-slate-900 text-sm text-slate-300 transition hover:border-blue-500 hover:bg-blue-600 hover:text-white"
                   >
-                    <i className={icon} />
+                    <i
+                      className={icon}
+                      aria-hidden="true"
+                    />
                   </a>
                 );
               })}
