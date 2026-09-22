@@ -100,26 +100,7 @@ export default async function Footer() {
           </ul>
         </div>
 
-        {/* Portals */}
-        <div>
-          <h3 className="mb-4 text-base font-bold text-white">
-            Portals & Account
-          </h3>
-
-          <ul className="space-y-2.5 text-sm text-slate-400">
-            {portalLinks.map((link) => (
-              <li key={link.name}>
-                <Link
-                  href={link.href}
-                  className="transition hover:text-blue-400"
-                >
-                  {link.name}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-
+       
         {/* Headquarters */}
         <div>
           <h3 className="mb-4 text-base font-bold text-white">
