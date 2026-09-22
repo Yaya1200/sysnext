@@ -4,10 +4,11 @@ import { FormEvent, useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { createClient } from "../../lib/supabase/client";
+import { uploadFile } from "../lib/uploadHelper";
 import StatsManager from "./StatsManager";
 import GalleryManager from "./GalleryManager";
 import SocialMediaManager from "./SocialMediaManager";
-
+import Analytics from "./analytics";
 type ContentType = "service" | "partner" | "blog" | "slider" | "project" | "team";
 
 export interface ContentItemRecord {
@@ -63,6 +64,7 @@ type TabType =
   | "overview"
   | "stats"
   | "services"
+  | "analytics"
   | "gallery"
   | "products"
   | "partners"
@@ -235,6 +237,19 @@ export default function AdminDashboard({ name }: { name: string }) {
                   <span>📈</span> Site Statistics
                 </span>
               </button>
+              <button
+                  type="button"
+                  onClick={() => setActiveTab("analytics")}
+                  className={`flex w-full items-center justify-between rounded-xl px-3.5 py-2.5 text-sm font-medium transition ${
+                    activeTab === "analytics"
+                      ? "bg-blue-600 text-white shadow-md shadow-blue-600/30"
+                      : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                  }`}
+                >
+                  <span className="flex items-center gap-2.5">
+                    <span>📊</span> Website Analytics
+                  </span>
+                </button>
 
             <div className="my-2 border-t border-slate-800 pt-2 px-3 text-[11px] font-bold uppercase tracking-wider text-slate-400">
               Content Managers
@@ -442,6 +457,7 @@ export default function AdminDashboard({ name }: { name: string }) {
             {activeTab === "stats" && (
                     <StatsManager showNotification={showNotification} />
                   )}
+            {activeTab === "analytics" && <Analytics />}
             {activeTab === "services" && (
               <ServicesManager showNotification={showNotification} onRefresh={refreshStats} />
             )}
@@ -766,10 +782,27 @@ function ServicesManager({
                 className="w-full rounded-xl border border-slate-800 bg-slate-900 px-3.5 py-2.5 text-sm text-white outline-none focus:border-blue-500"
               />
             </div>
-            <div>
-              <label className="mb-1 block text-xs font-medium text-slate-400">
-                Image Path / URL
-              </label>
+            <div className="flex items-center gap-2">
+              <label className="mb-1 block text-xs font-medium text-slate-400">Image Upload</label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    try {
+                      const url = await uploadFile(file, true);
+                      setImage(url);
+                    } catch (err: any) {
+                      showNotification(err.message || 'Upload failed', 'error');
+                    }
+                  }
+                }}
+                className="file:mr-4 file:rounded-full file:border-0 file:bg-blue-600 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-blue-500"
+              />
+            </div>
+            <div className="mt-2">
+              <label className="mb-1 block text-xs font-medium text-slate-400">Or paste Image URL</label>
               <input
                 value={image}
                 onChange={(e) => setImage(e.target.value)}
@@ -978,6 +1011,28 @@ function ProductManager({
     setIsAdding(false);
   };
 
+ const handleFileUpload = async (
+  e: React.ChangeEvent<HTMLInputElement>
+) => {
+  const file = e.target.files?.[0];
+
+  if (!file) return;
+
+  try {
+    // Product uploads allow images and PDFs, but both are limited to 5 MiB.
+    const url = await uploadFile(file, false);
+    setImage(url);
+  } catch (error: any) {
+    console.error("Upload error:", error);
+    showNotification(
+      error.message || "Upload failed. Please try again.",
+      "error"
+    );
+  } finally {
+    e.target.value = "";
+  }
+};
+
   return (
     <div>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -1021,7 +1076,7 @@ function ProductManager({
             </div>
             <div>
               <label className="mb-1 block text-xs font-medium text-slate-400">
-                Price (USD) *
+                Price (ETB) *
               </label>
               <input
                 required
@@ -1048,12 +1103,12 @@ function ProductManager({
             </div>
             <div>
               <label className="mb-1 block text-xs font-medium text-slate-400">
-                Image Path / URL
+                Image / PDF Upload *
               </label>
               <input
-                value={image}
-                onChange={(e) => setImage(e.target.value)}
-                placeholder="/products/product1.jpg"
+                type="file"
+                accept="image/*,application/pdf"
+                onChange={handleFileUpload}
                 className="w-full rounded-xl border border-slate-800 bg-slate-900 px-3.5 py-2.5 text-sm text-white outline-none focus:border-emerald-500"
               />
             </div>
@@ -1130,7 +1185,7 @@ function ProductManager({
 
               <div className="mt-4 flex items-center justify-between border-t border-slate-900 pt-3">
                 <span className="text-base font-black text-emerald-400">
-                  ${Number(p.price).toFixed(2)}
+                  {Number(p.price).toFixed(2)} Birr
                 </span>
                 <div className="flex gap-2">
                   <button
@@ -1276,6 +1331,28 @@ function PartnersManager({
                 onChange={(e) => setLogo(e.target.value)}
                 placeholder="/images/partners/partner1.jpg"
                 className="w-full rounded-xl border border-slate-800 bg-slate-900 px-3.5 py-2.5 text-sm text-white outline-none focus:border-amber-500"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-slate-400">
+                Upload Logo (max 5 MiB)
+              </label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  try {
+                    const url = await uploadFile(file, true);
+                    setLogo(url);
+                  } catch (err: any) {
+                    showNotification(err.message || "Upload failed", "error");
+                  } finally {
+                    e.target.value = "";
+                  }
+                }}
+                className="w-full rounded-xl border border-slate-800 bg-slate-900 px-3.5 py-2.5 text-sm text-white outline-none focus:border-amber-500 file:mr-4 file:rounded-full file:border-0 file:bg-amber-600 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-amber-500"
               />
             </div>
             <div>
@@ -1543,6 +1620,28 @@ function BlogsManager({
             </div>
             <div>
               <label className="mb-1 block text-xs font-medium text-slate-400">
+                Upload Cover Image (max 5 MiB)
+              </label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  try {
+                    const url = await uploadFile(file, true);
+                    setImage(url);
+                  } catch (err: any) {
+                    showNotification(err.message || "Upload failed", "error");
+                  } finally {
+                    e.target.value = "";
+                  }
+                }}
+                className="w-full rounded-xl border border-slate-800 bg-slate-900 px-3.5 py-2.5 text-sm text-white outline-none focus:border-purple-500 file:mr-4 file:rounded-full file:border-0 file:bg-purple-600 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-purple-500"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-slate-400">
                 Slug (URL)
               </label>
               <input
@@ -1783,6 +1882,28 @@ function SliderManager({
                 onChange={(e) => setImage(e.target.value)}
                 placeholder="/images/hero/hero1.webp"
                 className="w-full rounded-xl border border-slate-800 bg-slate-900 px-3.5 py-2.5 text-sm text-white outline-none focus:border-cyan-500"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-slate-400">
+                Upload Background Image (max 5 MiB)
+              </label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  try {
+                    const url = await uploadFile(file, true);
+                    setImage(url);
+                  } catch (err: any) {
+                    showNotification(err.message || "Upload failed", "error");
+                  } finally {
+                    e.target.value = "";
+                  }
+                }}
+                className="w-full rounded-xl border border-slate-800 bg-slate-900 px-3.5 py-2.5 text-sm text-white outline-none focus:border-cyan-500 file:mr-4 file:rounded-full file:border-0 file:bg-cyan-600 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-cyan-500"
               />
             </div>
             <div className="sm:col-span-2">
@@ -2031,6 +2152,28 @@ function ProjectsManager({
                 className="w-full rounded-xl border border-slate-800 bg-slate-900 px-3.5 py-2.5 text-sm text-white outline-none focus:border-rose-500"
               />
             </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-slate-400">
+                Upload Project Image (max 5 MiB)
+              </label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  try {
+                    const url = await uploadFile(file, true);
+                    setImage(url);
+                  } catch (err: any) {
+                    showNotification(err.message || "Upload failed", "error");
+                  } finally {
+                    e.target.value = "";
+                  }
+                }}
+                className="w-full rounded-xl border border-slate-800 bg-slate-900 px-3.5 py-2.5 text-sm text-white outline-none focus:border-rose-500 file:mr-4 file:rounded-full file:border-0 file:bg-rose-600 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-rose-500"
+              />
+            </div>
             <div className="sm:col-span-2">
               <label className="mb-1 block text-xs font-medium text-slate-400">
                 Project Description *
@@ -2241,6 +2384,28 @@ function TeamManager({
                 onChange={(e) => setImage(e.target.value)}
                 placeholder="/images/team/team1.png"
                 className="w-full rounded-xl border border-slate-800 bg-slate-900 px-3.5 py-2.5 text-sm text-white outline-none focus:border-violet-500"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-slate-400">
+                Upload Profile Photo (max 5 MiB)
+              </label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  try {
+                    const url = await uploadFile(file, true);
+                    setImage(url);
+                  } catch (err: any) {
+                    showNotification(err.message || "Upload failed", "error");
+                  } finally {
+                    e.target.value = "";
+                  }
+                }}
+                className="w-full rounded-xl border border-slate-800 bg-slate-900 px-3.5 py-2.5 text-sm text-white outline-none focus:border-violet-500 file:mr-4 file:rounded-full file:border-0 file:bg-violet-600 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-violet-500"
               />
             </div>
             <div>
@@ -2668,7 +2833,7 @@ function OrdersManager({
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="text-base font-black text-emerald-400">
-                    ${Number(ord.total_amount).toFixed(2)}
+                    {Number(ord.total_amount).toFixed(2)} Birr
                   </span>
                   <select
                     value={ord.status}
@@ -2697,7 +2862,7 @@ function OrdersManager({
                           {item.name} <strong className="text-slate-400">x{item.quantity}</strong>
                         </span>
                         <span className="font-bold text-slate-300">
-                          ${(item.price * item.quantity).toFixed(2)}
+                          {(item.price * item.quantity).toFixed(2)} Birr
                         </span>
                       </div>
                     ))}
