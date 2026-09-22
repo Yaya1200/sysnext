@@ -112,7 +112,7 @@ export default function CartPage() {
                         {item.category}
                       </span>
                       <h2 className="font-bold text-slate-900 text-base">{item.name}</h2>
-                      <p className="text-xs text-slate-500">${item.price.toFixed(2)} each</p>
+                      <p className="text-xs text-slate-500">{item.price.toFixed(2)}ETB each</p>
                     </div>
                   </div>
 
@@ -138,7 +138,7 @@ export default function CartPage() {
                     </div>
 
                     <strong className="min-w-20 text-right text-base font-black text-slate-900">
-                      ${(item.price * item.quantity).toFixed(2)}
+                      {(item.price * item.quantity).toFixed(2)} ETB
                     </strong>
 
                     <button
@@ -165,7 +165,7 @@ export default function CartPage() {
                 </div>
                 <div className="flex justify-between">
                   <span>Subtotal:</span>
-                  <strong className="text-slate-900">${total.toFixed(2)}</strong>
+                  <strong className="text-slate-900">{total.toFixed(2)} ETB</strong>
                 </div>
                 <div className="flex justify-between">
                   <span>Delivery / Handling:</span>
@@ -175,7 +175,7 @@ export default function CartPage() {
 
               <div className="flex items-center justify-between">
                 <span className="text-base font-bold text-slate-900">Total:</span>
-                <span className="text-2xl font-black text-blue-600">${total.toFixed(2)}</span>
+                <span className="text-2xl font-black text-blue-600">{total.toFixed(2)} ETB</span>
               </div>
 
               {!isOrdering ? (
