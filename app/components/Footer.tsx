@@ -134,7 +134,7 @@ export default async function Footer() {
 
             <li>+251911249171</li>
 
-            <li>info@sysnet.com.et</li>
+            <li>info@sysnet-et.com</li>
           </ul>
 
           {/* Dynamic Social Media */}
