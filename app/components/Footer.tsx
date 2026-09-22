@@ -10,12 +10,7 @@ const quickLinks = [
   { name: "Contact Us", href: "/contact" },
 ];
 
-const portalLinks = [
-  { name: "User Portal", href: "/portal" },
-  { name: "Admin Portal", href: "/admin" },
-  { name: "Shopping Cart", href: "/shop/cart" },
-  { name: "Member Login", href: "/login" },
-];
+
 
 interface SocialLink {
   id: number;
