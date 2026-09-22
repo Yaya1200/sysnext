@@ -337,7 +337,7 @@ export default function UserPortalPage() {
                             {item.category}
                           </span>
                           <h4 className="font-bold text-slate-900 text-base">{item.name}</h4>
-                          <p className="text-xs text-slate-500">${item.price.toFixed(2)} each</p>
+                          <p className="text-xs text-slate-500">{`${Math.round(item.price * 155).toLocaleString()}`}ETB each</p>
                         </div>
                       </div>
 
@@ -363,7 +363,7 @@ export default function UserPortalPage() {
                         </div>
 
                         <strong className="min-w-20 text-right text-base font-black text-slate-900">
-                          ${(item.price * item.quantity).toFixed(2)}
+                           {(item.price * item.quantity).toFixed(2)} ETB
                         </strong>
 
                         <button
@@ -390,7 +390,7 @@ export default function UserPortalPage() {
                     </div>
                     <div className="flex justify-between">
                       <span>Estimated Subtotal:</span>
-                      <strong className="text-slate-900">${total.toFixed(2)}</strong>
+                      <strong className="text-slate-900"> {total.toFixed(2)} ETB</strong>
                     </div>
                     <div className="flex justify-between">
                       <span>Tax / Handling:</span>
@@ -400,7 +400,7 @@ export default function UserPortalPage() {
 
                   <div className="flex justify-between items-center text-lg font-black text-slate-900">
                     <span>Total:</span>
-                    <span className="text-2xl text-blue-600">${total.toFixed(2)}</span>
+                    <span className="text-2xl text-blue-600"> {total.toFixed(2)} ETB</span>
                   </div>
 
                   <button
@@ -471,7 +471,7 @@ export default function UserPortalPage() {
                     </div>
 
                     <div className="rounded-xl bg-blue-50 p-4 text-xs text-blue-800">
-                      <strong>Order Total: ${total.toFixed(2)}</strong>. SysNet specialists will review your order inquiry and contact you with confirmation and delivery logistics.
+                      <strong>Order Total: {total.toFixed(2)}</strong> ETB. SysNet specialists will review your order inquiry and contact you with confirmation and delivery logistics.
                     </div>
 
                     <div className="flex justify-end gap-3 pt-2">
@@ -514,7 +514,7 @@ export default function UserPortalPage() {
                     <div>
                       <span className="text-xs font-bold text-blue-600">Order ID: #{ord.id}</span>
                       <h4 className="font-bold text-slate-900 text-base">
-                        Total Amount: ${Number(ord.total_amount).toFixed(2)}
+                        Total Amount: {Number(ord.total_amount).toFixed(2)} ETB
                       </h4>
                     </div>
                     <span
@@ -543,7 +543,7 @@ export default function UserPortalPage() {
                             {item.name} <strong className="text-slate-500">x{item.quantity}</strong>
                           </span>
                           <span className="font-bold text-slate-900">
-                            ${(item.price * item.quantity).toFixed(2)}
+                             {(item.price * item.quantity).toFixed(2)} ETB
                           </span>
                         </div>
                       ))}
